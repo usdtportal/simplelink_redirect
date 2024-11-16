@@ -25,7 +25,9 @@ if (!isset($_POST['username'], $_POST['api_key'])) {
 }
 
 if (file_exists($fileName)) {
-    require($fileName);
+    require_once $fileName;
+    
+
 } else {
     $username = $_POST['username'];
     $apiKey = $_POST['api_key'];
@@ -42,7 +44,7 @@ if (file_exists($fileName)) {
     }
 }
 
-if ($_POST['username'] !== $username || $_POST['api_key'] !== $api_key) {
+if ($_POST['username'] != $username || $_POST['api_key'] != $api_key) {
     exit(json_encode([
         'response' => 'Missing or incorrect credentials',
         'http_code' => 403
