@@ -1,6 +1,7 @@
 <?php
-error_reporting(0);
 ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(0);
 
 $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
 
@@ -17,11 +18,14 @@ $fileName = __DIR__ . '/simplelink_access.php';
 
 
 if (!isset($_POST['username'], $_POST['api_key'])) {
-    exit(json_encode(['ERROR' => 'Mising username and api_key params']));
+    exit(json_encode([
+        'response' => 'Mising username and api_key params',
+        'http_code' => 403
+    ]));
 }
 
 if (file_exists($fileName)) {
-    require $fileName;
+    require($fileName);
 } else {
     $username = $_POST['username'];
     $apiKey = $_POST['api_key'];
@@ -31,12 +35,18 @@ if (file_exists($fileName)) {
     $fileContent .= "\$api_key = '" . addslashes($apiKey) . "';\n";
 
     if (!file_put_contents($fileName, $fileContent) !== false) {
-        exit(json_encode(['status' => 'error', 'message' => 'Failed to write simplelink_access.php.']));
+        exit(json_encode([
+            'response' => 'Failed to write simplelink_access',
+            'http_code' => 403
+        ]));
     }
 }
 
 if ($_POST['username'] !== $username || $_POST['api_key'] !== $api_key) {
-    exit(json_encode(['ERROR' => 'Missing or incorrect credentials']));
+    exit(json_encode([
+        'response' => 'Missing or incorrect credentials',
+        'http_code' => 403
+    ]));
 }
 
 
@@ -49,6 +59,7 @@ $method = isset($_POST['method']) ? strtoupper($_POST['method']) : 'GET';
 $params = isset($_POST['parameters']) ? json_decode($_POST['parameters'], true) : [];
 
 if (!isset($api_url) ) {
+    http_response_code(403);
     exit(json_encode(['ERROR' => 'Missing required parameters: api_url']));
 }
 
@@ -65,10 +76,10 @@ if ($_POST['simplelink_test']) {
     $response['response'] .= "<br><br><br>";;
 }
 
-echo json_encode([
+exit(json_encode([
     'response' => $response['response'],
     'http_code' => $response['http_code']
-]);
+]));
 
 
 
