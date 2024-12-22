@@ -57,6 +57,8 @@ if ($_POST['username'] != $username || $_POST['api_key'] != $api_key) {
 if (isset($_POST['api_url'])) {
     $api_url = $_POST['api_url'];
 }
+
+
 $method = isset($_POST['method']) ? strtoupper($_POST['method']) : 'GET';
 $params = isset($_POST['parameters']) ? json_decode($_POST['parameters'], true) : [];
 
@@ -78,9 +80,11 @@ if ($_POST['simplelink_test']) {
     $response['response'] .= "<br><br><br>";;
 }
 
+$error = $json['error'] ?? "";
 exit(json_encode([
     'response' => $response['response'],
-    'http_code' => $response['http_code']
+    'http_code' => $response['http_code'],
+    'error' => $error
 ]));
 
 
@@ -101,7 +105,7 @@ function sendRequest($url, $method = 'GET', $params = []) {
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 30);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 55);
 
         $response = curl_exec($curl);
         $httpStatusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -113,7 +117,7 @@ function sendRequest($url, $method = 'GET', $params = []) {
         return [
             'status' => 'success',
             'response' => $response,
-            'http_code' => $httpStatusCode
+            'http_code' => $httpStatusCode 
         ];
     } catch (Exception $e) {
         return [
